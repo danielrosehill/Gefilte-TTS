@@ -4,6 +4,8 @@ Run on residencehome:  modal run scripts/modal_nikud.py --limit 200 --out data/p
 limit 0 = the whole eligible pool. The model runs on Modal, never on the laptop.
 """
 import json
+import os
+
 import modal
 
 MODEL = "dicta-il/dictabert-large-char-menaked"
@@ -88,6 +90,7 @@ def point(limit: int = 200, batch: int = 64):
 @app.local_entrypoint()
 def main(limit: int = 200, out: str = "data/pilot.jsonl"):
     rows = point.remote(limit)
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     with open(out, "w", encoding="utf8") as f:
         for r in rows:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
